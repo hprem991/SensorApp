@@ -4,8 +4,12 @@ package com.example.admin.sensorapp;
  * Created by admin on 4/21/16.
  */
 
+import android.content.Context;
+import android.os.Environment;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -17,7 +21,7 @@ import java.io.OutputStreamWriter;
 
 public class FileProcessor {
     private BufferedReader br = null;
-    private BufferedWriter bw = null;
+  //  private BufferedWriter bw = null;
     private FileOutputStream fileOutputStream = null;
     private FileInputStream fileInputStream = null;
 
@@ -32,12 +36,12 @@ public class FileProcessor {
      *
      ********************************************************/
 
-    public FileProcessor(String fileName) {
+    public FileProcessor(String fileName, Context context) {
         try {
-            fileOutputStream  = new FileOutputStream(fileName);
-            fileInputStream = new FileInputStream(fileName);
+            fileOutputStream  = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+           // fileInputStream = new FileInputStream(fileName);
+           // bw = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
             br = new BufferedReader(new InputStreamReader(fileInputStream));
-            bw = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
         } catch (Exception e) {
             Logger.writeMessage("Processor Exception  " + e.getMessage(),
                                   Logger.DebugLevel.CONSTRUCTOR);
@@ -81,17 +85,19 @@ public class FileProcessor {
      *
      ********************************************************/
 
-    public String writeLineToFile(String line){
+    public boolean writeLineToFile(String line){
         try{
-            bw.write(line);
-            bw.newLine();
+            System.out.println("Writing line " + line);
+            fileOutputStream.write(line.getBytes());
+            fileOutputStream.write("\n".getBytes());
         } catch(Exception e){
             Logger.writeMessage("Exception writeLine  "+e.getMessage(),
                                  Logger.DebugLevel.NONE);
             e.printStackTrace();
-            return e.getMessage();
+            System.out.println("Exception Wring "+e.getMessage());
+            return false;
         }
-        return  "No Issues";
+        return  true ;
     }
 
     /********************************************************
@@ -106,7 +112,7 @@ public class FileProcessor {
     public void close(){
         try {
             br.close();
-            bw.close();
+           // bw.close();
         } catch (IOException e) {
             Logger.writeOutput("Could not close input/output stream " + e.getMessage());
         }
